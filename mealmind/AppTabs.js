@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import UserDetailScreen from "./Screens/Onboarding/UserDetailsScreen";
 import GoalScreen from "./Screens/Onboarding/GoalScreen";
+import MealPlanScreen from "./Screens/Onboarding/MealPlanScreen";
 
 const OnboardingStack = createNativeStackNavigator();
 const AppTabs = createBottomTabNavigator();
@@ -12,7 +13,8 @@ const OnboardingFlow = () => {
         <OnboardingStack.Navigator screenOptions={{headerShown: true, headerTitle: ""}} initialRouteName="EnterYourDetail">
         {/* <OnboardingStack.Screen name="Welcome" component={WelcomeScreen} /> */}
          <OnboardingStack.Screen name="EnterYourDetail" component={UserDetailScreen} options={{headerShown: false}}/>
-         <OnboardingStack.Screen name="Goal" component={GoalScreen} options={{}}/>
+         <OnboardingStack.Screen name="Goal" component={GoalScreen}/>
+         <OnboardingStack.Screen name="UserMealPlan" component={MealPlanScreen}/>
         </OnboardingStack.Navigator>
     );
     }

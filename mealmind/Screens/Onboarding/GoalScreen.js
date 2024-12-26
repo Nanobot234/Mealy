@@ -2,20 +2,46 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button, RadioButton } from 'react-native-paper';
+import { useSelector, useDispatch } from 'react-redux';
+import { setGoal, setGoalDetails, setSelectedGoal } from '../../redux/reducers/userReducer';
+import { generateText } from '../../Utils/openAIServices';
 
 const GoalScreen = () => {
-  const [selectedGoal, setSelectedGoal] = useState('lose_weight');
-  const [goalDetails, setGoalDetails] = useState('');
-  const [inputHeight, setInputHeight] = useState(100);
-  const navigation = useNavigation();
+  const [inputHeight, setInputHeight] = useState(100); //used for ui Display
+  const navigation = useNavigation(); //used to navigate between screens
+  const dispatch = useDispatch(); //used to dispatch actions to the store
+  const [localGoalType, setLocalGoalType] = useState('lose weight'); //used to store the goal type
+  const [localGoalDetails, setLocalGoalDetails] = useState(''); //used to store the goal details
+
+
+
+  const { age,selectedGoalType, goalDetails, weightwithUnit, nationality,heightwithUnit} = useSelector(state => state.user);
+
+
+  // submit fucntion to run when the user submits the form
+  const saveToStoreAndNavigate = async () => {
+    dispatch(setSelectedGoal(localGoalType));
+    dispatch(setGoalDetails(localGoalDetails));
+
+    try {
+      console.log('selected goal type:', selectedGoalType);
+      const text = await generateText(age,nationality, weightwithUnit, heightwithUnit, localGoalType, localGoalDetails);
+     console.log('Data:', text);
+    } catch (error) {
+      console.error('Error generating text:', error);
+    }
+
+    navigation.navigate('UserMealPlan');
+  };
+
 
   const getHelpText = (goal) => {
     switch (goal) {
-      case 'lose_weight':
+      case 'lose weight':
         return 'Please enter how much weight you want to lose and in how much time.\nExample: I want to lose 5kg in 2 months.';
-      case 'manage_health':
+      case 'manage a health condition':
         return 'Enter details about the health condition you want to manage.Also include the level of your condition and how it affects you currently\n\nExample: I have type 2 diabetes and it has a major impact on my life.';
-      case 'improve_nutrition':
+      case 'improve my nutrition':
         return 'Enter details about how you want to improve your nutrition.\nExample: I want to eat more fruits and vegetables and less processed foods.';
       default:
         return '';
@@ -34,25 +60,27 @@ const GoalScreen = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.section}>
         <Text style={styles.navigationHeader}>What's your goal?</Text>
-        <RadioButton.Group onValueChange={setSelectedGoal} value={selectedGoal}>
+        <RadioButton.Group onValueChange={(value) => setLocalGoalType(value)} value={localGoalType}>
           <View>
-            <RadioButton.Item label="Lose Weight" value="lose_weight" />
-            <RadioButton.Item label="Manage Health" value="manage_health" />
-            <RadioButton.Item label="Improve Nutrition" value="improve_nutrition" />
+            <RadioButton.Item label="Lose Weight" value="lose weight" />
+            <RadioButton.Item label="Manage Health" value="manage a health condition" />
+            <RadioButton.Item label="Improve Nutrition" value="improve my nutrition" />
           </View>
 
         </RadioButton.Group>
       </View>
       <View style={styles.section}>
-        <Text style={styles.helpText}>{getHelpText(selectedGoal)}</Text>
+        <Text style={styles.helpText}>{getHelpText(localGoalType)}</Text>
       </View>
       <View style={styles.section}>
         <TextInput
           style={[styles.textInput, {height: 150}]}
           placeholder="Enter details about your goal"
           multiline
-          value={goalDetails}
-          onChangeText={setGoalDetails}
+          onChangeText={(text) => setLocalGoalDetails(text)}
+          value={localGoalDetails}
+          // onBlur={dispatch(setGoalDetails(goalDetails))}
+          
           onContentSizeChange={(event) => {
             const newHeight = event.nativeEvent.contentSize.height;
                 console.log('New input height:', newHeight);
@@ -71,8 +99,8 @@ const GoalScreen = () => {
         <Button
          mode="contained"
          style={styles.submitButton}
-        // onPress={() => navigation.navigate('Goal')}>
-        >
+         onPress={saveToStoreAndNavigate}>
+        
             Create Weekly Meal Plan
         </Button>
 
@@ -87,7 +115,6 @@ const GoalScreen = () => {
 };
 
 //see further things to add,. NEXTT!!
-
 
 const styles = StyleSheet.create({
     safeArea: {

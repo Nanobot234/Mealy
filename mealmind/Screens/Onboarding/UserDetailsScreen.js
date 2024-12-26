@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView, Platform, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
-import { TextInput, Button, Menu, Provider } from 'react-native-paper';
+import { TextInput, Button, Menu, Provider, PaperProvider } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import { setWeight, setHeight,setAge, setHeightUnit, setWeightUnit, setName, setNationality } from '../../redux/reducers/userReducer';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const OnboardingScreen = () => {
   //State variables
-  const [name, setName] = useState('');
-  const [wieghtUnit, setWeightUnit] = useState('kg');
-  const [age, setAge] = useState(18); // Default age
-  const [unit, setUnit] = useState('cm'); // Default unit is cm
-  const [weight, setWeight] = useState(60); // Default weight
-  const [height, setHeight] = useState(160); // Default height in cm
-  const [natiionality, setNationality] = useState(''); //The users nationality, used to make foods thye will likely eat
 
+  //const [heightUnit, setUnit] = useState('ft'); //The users nationality, used to make foods thye will likely eat
+  // const [weightUnit, setWeightUnit] = useState('kg');
+  const dispatch = useDispatch();
+  const { weight, height, nationality, name, age, weightUnit, heightUnit} = useSelector(state => state.user);
   // Menu options for gender
   const [gender, setGender] = useState('Select Gender');
 
@@ -27,7 +27,7 @@ const OnboardingScreen = () => {
     style={{ flex: 1 }}
   >
     <SafeAreaView style={styles.safeArea}>
-  <Provider>
+  <PaperProvider>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Tell Us About Yourself</Text>
 
@@ -35,7 +35,7 @@ const OnboardingScreen = () => {
       <TextInput
         label="Name"
         value={name}
-        onChangeText={setName}
+        onChangeText={(nameText) => dispatch(setName(nameText))}
         mode="outlined"
         style={styles.input}
       />
@@ -45,7 +45,7 @@ const OnboardingScreen = () => {
         <Text style={styles.label}>Age(Years)</Text>
         <Picker
           selectedValue={age}
-          onValueChange={(value) => setAge(value)}
+          onValueChange={(value) => dispatch(setAge(value))}
           style={[styles.picker, Platform.OS === 'ios' && { backgroundColor: '#00000000' }]}>
           <Picker.Item label="18" value="18" />
           <Picker.Item label="19" value="19" />
@@ -62,7 +62,7 @@ const OnboardingScreen = () => {
           <TextInput
             label="Weight"
             value={weight}
-            onChangeText={(value) => setWeight(value)}
+            onChangeText={(value) => dispatch(setWeight(value))}
             mode="outlined"
             style={{ height: 50 }} 
             keyboardType='numeric'
@@ -70,8 +70,8 @@ const OnboardingScreen = () => {
             </View>
 
         <Picker
-          selectedValue={wieghtUnit}
-          onValueChange={(value) => setWeightUnit(value)}
+          selectedValue={weightUnit}
+          onValueChange={(value) => dispatch(setWeightUnit(value))}
           style={[styles.picker, Platform.OS === 'ios' && { backgroundColor: '#00000000' }]}>
           {/* {Array.from({ length: 200 }, (_, i) => (
             <Picker.Item label={`${i + 1} kg`} value={i + 1} key={i} />
@@ -89,22 +89,22 @@ const OnboardingScreen = () => {
         <TouchableOpacity
           style={[
             styles.unitButton,
-            unit === 'cm' ? styles.unitButtonSelected : null,
+            heightUnit === 'cm' ? styles.unitButtonSelected : null,
           ]}
-          onPress={() => setUnit('cm')}
+          onPress={() => dispatch(setHeightUnit('cm'))}
         >
-          <Text style={unit === 'cm' ? styles.unitTextSelected : styles.unitText}>
+          <Text style={heightUnit === 'cm' ? styles.unitTextSelected : styles.unitText}>
             cm
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.unitButton,
-            unit === 'ft' ? styles.unitButtonSelected : null,
+            heightUnit === 'ft' ? styles.unitButtonSelected : null,
           ]}
-          onPress={() => setUnit('ft')}
+          onPress={() => dispatch(setHeightUnit('ft'))}
         >
-          <Text style={unit === 'ft' ? styles.unitTextSelected : styles.unitText}>
+          <Text style={heightUnit === 'ft' ? styles.unitTextSelected : styles.unitText}>
             ft
           </Text>
         </TouchableOpacity>
@@ -115,9 +115,9 @@ const OnboardingScreen = () => {
  {/* Height Input */}
  <TextInput
         style={styles.input}
-        label={`Enter height in ${unit}`}
+        label={`Enter height in ${heightUnit}`}
         value={height}
-        onChangeText={setHeight}
+        onChangeText={(newHeight) => dispatch(setHeight(newHeight))}
         keyboardType="numeric"
       />
       </View>
@@ -125,10 +125,10 @@ const OnboardingScreen = () => {
       {/* <View style={styles.container}> */}
       <TextInput
         style={styles.input}
-        value={natiionality}
+        value={nationality.toString()}
         label={"Which country are you from?"}
         mode='outlined'
-        onChangeText={setNationality}
+        onChangeText={(nationality_text) => dispatch(setNationality(nationality_text))}
       />
       <Text style>This will help us find meals youll love to eat!</Text>
       {/* </View> */}
@@ -151,7 +151,7 @@ const OnboardingScreen = () => {
 
 
     </ScrollView>
-  </Provider>
+  </PaperProvider>
 </SafeAreaView>
 </KeyboardAvoidingView>
 
